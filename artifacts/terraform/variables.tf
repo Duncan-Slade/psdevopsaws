@@ -3,7 +3,7 @@ variable "profile" {
 }
 
 variable "region" {
-  default = "ap-southeast-1"
+  default = "ap-southeast-2"
 }
 
 variable "instance" {
@@ -37,5 +37,5 @@ variable "amis" {
 }
 
 variable "ami" {
-  default = "ami-0c5199d385b432989"
+  default = "ami-0b1f854598cf629f6"
 }
