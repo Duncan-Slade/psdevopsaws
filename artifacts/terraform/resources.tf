@@ -68,16 +68,16 @@ resource "aws_instance" "pingfed1" {
     EOT
   }
   # This is where we configure the instance with ansible-playbook
-  provisioner "local-exec" {
-    command = <<EOT
-      sleep 600;
-	  >pingfed1.ini;
-	  echo "[pingfed1]" | tee -a pingfed1.ini;
-	  echo "${aws_instance.pingfed1.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a pingfed1.ini;
-      export ANSIBLE_HOST_KEY_CHECKING=False;
-	  ansible-playbook -u ${var.ansible_user} --private-key ${var.private_key} -i pingfed1.ini ../playbooks/install_pingfed1.yaml
-    EOT
-  }
+  #provisioner "local-exec" {
+  #  command = <<EOT
+  #    sleep 600;
+#	  >pingfed1.ini;
+#	  echo "[pingfed1]" | tee -a pingfed1.ini;
+#	  echo "${aws_instance.pingfed1.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a pingfed1.ini;
+ #     export ANSIBLE_HOST_KEY_CHECKING=False;
+#	  ansible-playbook -u ${var.ansible_user} --private-key ${var.private_key} -i pingfed1.ini ../playbooks/install_pingfed1.yaml
+ #   EOT
+ # }
 
   tags {
     Name     = "pingfed1-${count.index +1 }"
