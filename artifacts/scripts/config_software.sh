@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # add addresses to /etc/hosts 
-echo "192.168.99.160 terraform.sample.com" | sudo tee -a /etc/hosts 
+echo "192.168.15.146 terraform.sample.com" | sudo tee -a /etc/hosts 
 
 TERRAFORM_VERSION="0.11.11"
 WORKDIR=/tmp/terraform
