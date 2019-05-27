@@ -36,23 +36,23 @@ apt-get install git -y
 # Cleanup unneded packages
 apt-get -y autoremove
 
-# Adjust timezone to be Singapore
-ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime
+# Adjust timezone to be Australia
+ln -sf /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 
 # add user to sudo groups
-usermod -aG sudo vagrant
+usermod -aG sudo psdevops
 
 # lsb_release -a
 
-# Add vagrant user to sudoers.
-echo "vagrant        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
+# Add psdevops user to sudoers.
+echo "psdevops        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 
 # Disable daily apt unattended updates.
 #echo 'APT::Periodic::Enable "0";' >> /etc/apt/apt.conf.d/10periodic
 
 # generating password configuration on ansible server to later access remote servers
-echo vagrant | sudo -S su - vagrant -c "ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -q -P ''"
+echo psdevops | sudo -S su - psdevops -c "ssh-keygen -t rsa -f /home/psdevops/.ssh/id_rsa -q -P ''"
 #ssh-keygen -f ~/keypair -P ""
 #ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -q -P ''
 
