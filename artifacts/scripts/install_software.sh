@@ -40,13 +40,13 @@ apt-get -y autoremove
 ln -sf /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 
 # add user to sudo groups
-usermod -aG sudo psdevops
+# usermod -aG sudo psdevops
 
 # lsb_release -a
 
 # Add psdevops user to sudoers.
-echo "psdevops        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
-sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
+# echo "psdevops        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
+# sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 
 # Disable daily apt unattended updates.
 #echo 'APT::Periodic::Enable "0";' >> /etc/apt/apt.conf.d/10periodic
