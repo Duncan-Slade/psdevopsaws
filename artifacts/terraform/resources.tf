@@ -17,7 +17,7 @@ resource "aws_vpc" "my-vpc" {
 }
 */
 
-resource "aws_instance" "jenkins-ci" {
+resource "aws_instance" "pingfed1" {
   count = "${var.instance_count}"
 
   #ami = "${lookup(var.amis,var.region)}"
@@ -30,7 +30,7 @@ resource "aws_instance" "jenkins-ci" {
     "${aws_security_group.ssh.id}",
     "${aws_security_group.egress-tls.id}",
     "${aws_security_group.ping-ICMP.id}",
-	"${aws_security_group.web_server.id}"
+	"${aws_security_group.pingfed_server.id}"
   ]
 
 
@@ -62,7 +62,7 @@ resource "aws_instance" "jenkins-ci" {
       sleep 30;
 	  >java.ini;
 	  echo "[java]" | tee -a java.ini;
-	  echo "${aws_instance.jenkins-ci.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a java.ini;
+	  echo "${aws_instance.pingfed1.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a java.ini;
       export ANSIBLE_HOST_KEY_CHECKING=False;
 	  ansible-playbook -u ${var.ansible_user} --private-key ${var.private_key} -i java.ini ../playbooks/install_java.yaml
     EOT
@@ -71,77 +71,22 @@ resource "aws_instance" "jenkins-ci" {
   provisioner "local-exec" {
     command = <<EOT
       sleep 600;
-	  >jenkins-ci.ini;
-	  echo "[jenkins-ci]" | tee -a jenkins-ci.ini;
-	  echo "${aws_instance.jenkins-ci.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a jenkins-ci.ini;
+	  >pingfed1.ini;
+	  echo "[pingfed1]" | tee -a pingfed1.ini;
+	  echo "${aws_instance.pingfed1.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a pingfed1.ini;
       export ANSIBLE_HOST_KEY_CHECKING=False;
-	  ansible-playbook -u ${var.ansible_user} --private-key ${var.private_key} -i jenkins-ci.ini ../playbooks/install_jenkins.yaml
+	  ansible-playbook -u ${var.ansible_user} --private-key ${var.private_key} -i pingfed1.ini ../playbooks/install_pingfed1.yaml
     EOT
   }
 
   tags {
-    Name     = "jenkins-ci-${count.index +1 }"
+    Name     = "pingfed1-${count.index +1 }"
     Batch    = "7AM"
-    Location = "Singapore"
+    Location = "Sydney"
   }
 }
 
-resource "aws_instance" "gitLab" {
-  count = "${var.instance_count}"
 
-  #ami = "${lookup(var.amis,var.region)}"
-  ami           = "${var.ami}"
-  instance_type = "${var.instance}"
-  key_name      = "${aws_key_pair.demo_key.key_name}"
-
-  vpc_security_group_ids = [
-    "${aws_security_group.web.id}",
-    "${aws_security_group.ssh.id}",
-    "${aws_security_group.egress-tls.id}",
-    "${aws_security_group.ping-ICMP.id}",
-	"${aws_security_group.web_server.id}"
-  ]
-
-
-  ebs_block_device {
-    device_name           = "/dev/sdg"
-    volume_size           = 500
-    volume_type           = "io1"
-    iops                  = 2000
-    encrypted             = true
-    delete_on_termination = true
-  }
-
-  connection {
-    private_key = "${file(var.private_key)}"
-    user        = "${var.ansible_user}"
-  }
-
-  #user_data = "${file("../templates/install_gitLab.sh")}"
-
-  # Ansible requires Python to be installed on the remote machine as well as the local machine.
-  provisioner "remote-exec" {
-    inline = ["sudo apt-get -qq install python -y"]
-  }
-
-  # This is where we configure the instance with ansible-playbook
-  provisioner "local-exec" {
-    command = <<EOT
-      sleep 30;
-	  >gitLab.ini;
-	  echo "[gitLab]" | tee -a gitLab.ini;
-	  echo "${aws_instance.gitLab.public_ip} ansible_user=${var.ansible_user} ansible_ssh_private_key_file=${var.private_key}" | tee -a gitLab.ini;
-      export ANSIBLE_HOST_KEY_CHECKING=False;
-	  ansible-playbook -u ${var.ansible_user} --private-key ${var.private_key} -i gitLab.ini ../playbooks/install_gitlab.yaml
-    EOT
-  }
-
-  tags {
-    Name     = "gitLab-${count.index +1 }"
-    Batch    = "7AM"
-    Location = "Singapore"
-  }
-}
 
 resource "aws_security_group" "web" {
   name        = "default-web-example"
@@ -219,20 +164,20 @@ resource "aws_security_group" "ping-ICMP" {
   }
 }
 
-# Allow the web app to receive requests on port 8080
-resource "aws_security_group" "web_server" {
-  name        = "default-web_server-example"
-  description = "Default security group that allows to use port 8080"
+# Allow the PingFed app to receive requests on port 9999
+resource "aws_security_group" "pingfed_server" {
+  name        = "PingFed Server"
+  description = "Security group that allows to use port 9999"
   #vpc_id      = "${aws_vpc.my-vpc.id}"
   
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 9999
+    to_port     = 9999
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags {
-    Name = "web_server-example-default-vpc"
+    Name = "pingfed_server-example-default-vpc"
   }
 }
