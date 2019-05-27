@@ -56,7 +56,7 @@ resource "aws_instance" "pingfed1" {
   }
 
   # This is where we configure the instance with ansible-playbook
-  # Jenkins requires Java to be installed 
+  # PingFed requires Java to be installed 
   provisioner "local-exec" {
     command = <<EOT
       sleep 30;
